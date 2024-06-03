@@ -1,13 +1,21 @@
-import React from 'react'
+import React from "react";
 
-function Todo({ todo }){
+function Todo({ todo, dispatch, setTodo }) {
+  const handleToggle = () => {
+    dispatch({ type: "toggle", payload: { id: todo.id } });
+  };
+
+  const handleDelete = () => {
+    dispatch({ type: "delete", payload: { id: todo.id } });
+  };
+
   return (
     <div>
-      <span>{todo}</span>
-      <input type='checkbox'></input>
-      <button>Delete</button>
+      <span>{todo.name}</span>
+      <input type="checkbox" onChange={handleToggle}></input>
+      <button onClick={handleDelete}>Delete</button>
     </div>
-  )
+  );
 }
 
-export default Todo
+export default Todo;

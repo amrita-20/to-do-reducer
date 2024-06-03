@@ -1,51 +1,72 @@
-import { useState, useReducer } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import Todo from './Todo'
+import { useState, useReducer } from "react";
+import "./App.css";
+import Todo from "./Todo";
 
 const ACTIONS = {
-  INCREMENT: 'increment',
-  DECREMENT: 'decrement'
+  ADD: "add",
+  DELETE: "delete",
+  TOGGLE: "toggle",
+};
+let count = 1;
+
+function reducer(todos, action) {
+  switch (action.type) {
+    case ACTIONS.ADD:
+      return [...todos, createNewTodo(action.payload.todo)];
+    case ACTIONS.TOGGLE:
+      return todos.map((todo) => {
+        if (todo.id === action.payload.id) {
+          return { ...todo, complete: !todo.complete };
+        }
+        return todo;
+      });
+    case ACTIONS.DELETE:
+      return todos.filter((todo) => {
+        return todo.id !== action.payload.id;
+      });
+    default:
+      return todos;
+  }
 }
 
-const todos = ['sleep', 'wake up', 'study', 'attend meeting', 'do leetcode', 'revise js concepts'];
-
-function reducer (state, action){
-  switch(action.type) {
-    case ACTIONS.INCREMENT:
-      return ({count: state.count+1})
-    case ACTIONS.DECREMENT:
-      return ({count: state.count-1})
-    default:
-      return state
-  }
+function createNewTodo(todo) {
+  return { id: count++, name: todo, complete: false };
 }
 
 function App() {
-  const [state, dispatch] = useReducer(reducer, {count : 0})
+  const [todos, dispatch] = useReducer(reducer, []);
+  const [todo, setTodo] = useState("");
 
+  const handleAddTodo = (event) => {
+    event.preventDefault();
+    setTodo("");
+    dispatch({ type: ACTIONS.ADD, payload: { todo } });
+  };
 
-  const handleIncrement = () => {
-    dispatch({type: ACTIONS.INCREMENT})
-  }
-
-  const handleDecrement = () => {
-    dispatch({ type: ACTIONS.DECREMENT})
-  }
   return (
     <>
-      <div>
-        <span>Count: {state.count}</span>
-        <button onClick={handleIncrement}>+</button>
-        <button onClick={handleDecrement}>-</button>
-      </div>
-     <main>
-      {todos.map((todo) => <Todo key={todo} todo={todo} />
-      )}
-     </main>
+      <main>
+        <form onSubmit={(event) => handleAddTodo(event)}>
+          <label htmlFor="todo">Add To do</label>
+          <input
+            id="todo"
+            type="text"
+            value={todo}
+            onChange={(e) => setTodo(e.target.value)}
+          ></input>
+          <button type="submit">Add</button>
+        </form>
+        {todos.map((todo) => (
+          <Todo
+            key={todo.id}
+            todo={todo}
+            dispatch={dispatch}
+            setTodo={setTodo}
+          />
+        ))}
+      </main>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
